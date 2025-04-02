@@ -1,5 +1,6 @@
 package com.example.tictactoe1.models;
 
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Player {
@@ -18,19 +19,23 @@ public class Player {
         this.scanner = new Scanner(System.in);
     }
 
-    public Move inputMove(Board board){
-        System.out.println("Enter row for making move, 0 based index");
-        int row = scanner.nextInt();
-        System.out.println("Enter column for making move, 0 based index");
-        int col = scanner.nextInt();
+    public int[] inputMove(Board board){
+        int row, col;
+        while (true) {
+            System.out.println("Enter row (0-based index): ");
+            row = scanner.nextInt();
+            System.out.println("Enter column (0-based index): ");
+            col = scanner.nextInt();
 
-        Cell cell = board.getCell(row,col);
-        cell.setPlayer(this);
-
-        return new Move(this, cell);
-        // after user have entered his move, we can validate the input
-        // If we create a bot, the bot class should also have makeMove();
+            // Validate input bounds before returning
+            if (row >= 0 && row < board.getSize() && col >= 0 && col < board.getSize()) {
+                break;
+            }
+            System.out.println("Invalid input! Please enter a valid row and column.");
+        }
+        return new int[]{row, col};
     }
+
 
     //Getter and setters
     public String getName() {

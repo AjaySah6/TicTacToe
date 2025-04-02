@@ -18,12 +18,14 @@ public class DiagWinningStrategy implements WinningStrategy{
 
     private boolean checkRightDiagonal(Player player, Board board) {
         for (int i = 0; i < board.getSize(); i++) {
-            if(board.getCell(i,i).getPlayer().getSymbol().getCharacter() != player.getSymbol().getCharacter()){
+            if(board.getCell(i,i).getPlayer()==null ||
+                    board.getCell(i,i).getPlayer().getSymbol().getCharacter() != player.getSymbol().getCharacter()){
                 return false;
             }
         }
         return true;
     }
+
 
     // Bottom left to top right
 
