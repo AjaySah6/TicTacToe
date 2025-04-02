@@ -1,16 +1,4 @@
 package com.example.tictactoe1;
-
-//import org.springframework.boot.SpringApplication;
-//import org.springframework.boot.autoconfigure.SpringBootApplication;
-//
-//@SpringBootApplication
-//public class Tictactoe1Application {
-//    public static void main(String[] args) {
-//        SpringApplication.run(Tictactoe1Application.class, args);
-//    }
-//}
-
-
 import com.example.tictactoe1.controller.GameController;
 import com.example.tictactoe1.models.Game;
 import com.example.tictactoe1.models.GameState;
@@ -39,29 +27,40 @@ public class Tictactoe1Application implements CommandLineRunner {
         // Set board dimension
         int dimension = 3;
 
-        // Create players
-        List<Player> players = new ArrayList<>();
-        players.add(new Player("Player1", new Symbol('X')));
-        players.add(new Player("Player2", new Symbol('O')));
+        while (true) { // Loop to keep playing until the player decides to stop
 
-        // Start game
-        Game game = gameController.startGame(players, dimension);
+            // Create players
+            List<Player> players = new ArrayList<>();
+            players.add(new Player("Player1", new Symbol('X')));
+            players.add(new Player("Player2", new Symbol('O')));
 
-        while (gameController.checkState(game).equals(GameState.IN_PROGRESS)) {
-            gameController.printBoard(game);
-            gameController.makeMove(game);
+            // Start a new game
+            Game game = gameController.startGame(players, dimension);
+
+            while (gameController.checkState(game).equals(GameState.IN_PROGRESS)) {
+                gameController.printBoard(game);
+                gameController.makeMove(game);
+            }
+
+            // Game ended
+            System.out.println("Game is finished");
+            GameState gameState = gameController.checkState(game);
+
+            if (gameState == GameState.DRAW) {
+                System.out.println("Game is a Draw.");
+            } else if (gameState == GameState.WIN) {
+                System.out.println("Game won by " + gameController.getWinner(game).getName());
+            }
+
+            // Ask if the player wants to play again
+            System.out.print("Do you want to play again? (Y/N): ");
+            String response = scanner.next().trim().toUpperCase();
+
+            if (!response.equals("Y")) {
+                System.out.println("Thanks for playing! Goodbye.");
+                break; // Exit the loop and terminate the program
+            }
         }
-
-        // Game ended
-        System.out.println("Game is finished");
-        GameState gameState = gameController.checkState(game);
-
-        if (gameState == GameState.DRAW) {
-            System.out.println("Game is Draw");
-        } else if (gameState == GameState.WIN) {
-            System.out.println("Game won by " + gameController.getWinner(game).getName());
-        }
-
         scanner.close();
     }
 }

@@ -35,48 +35,56 @@ public class Game {
     // we will add the implementation of makeModel in model class ex- Player, Bot
 
     public void makeMove()  {
-        Player currentMovePlayer = players.get(nextMovePlayerIndex); // This line retrieves the player whose turn it is based on nextMovePlayerIndex.
-        System.out.println("It is "+ currentMovePlayer.getName()+ "turn. Please make your move. ");
+        Player currentMovePlayer = players.get(nextMovePlayerIndex); // returns current player
+        System.out.println("It is " + currentMovePlayer.getName() + "'s turn. Please make your move. ");
 
-        Move move = currentMovePlayer.inputMove(board); // capture and store a player's move so that it can be validated and processed later.
+        // the input of row and col has to be validated first and then move should be stored
 
-        printBoardShowingCellState();
+        int[] moveCoordinates = currentMovePlayer.inputMove(board); // creating an integer array and then using it to store the row and column values
+        int row = moveCoordinates[0];
+        int col = moveCoordinates[1];
 
-        if(!validateCellState(move)){
+        // Validate the move BEFORE modifying the board
+        if (!validateCellState(row, col)) {
             System.out.println("Move is invalid. Try again!");
             return;
         }
 
-        int row = move.getCell().getRow();
-        int col = move.getCell().getCol();
+        // Now it's safe to update the board
+        Cell cellToUpdate = board.getCell(row, col);
+        cellToUpdate.setPlayer(currentMovePlayer);
+        cellToUpdate.setCellState(CellState.FILLED);
 
-        // 🔹 Retrieving the Cell from the Board, and updating the Cell
+        // Store the move
+        Move lastMove = new Move(currentMovePlayer, cellToUpdate);
+        moves.add(lastMove);
 
-        Cell cellToUpdate = board.getCell(row, col); //This retrieves a specific cell.
-        cellToUpdate.setPlayer(currentMovePlayer);   // Set Player
-        cellToUpdate.setCellState(CellState.FILLED); // Changing Cell State
-
-        //A new Move object is created to store the move. Updating the Board (Modifying the Cell)
-
-        Move lastMove = new Move(currentMovePlayer, board.getCell(row, col));
-        //board.getCell(row, col).setCellState(CellState.FILLED);
-        // board.getCell(row, col).setPlayer(currentMovePlayer);
-        moves.add(lastMove); //Storing the Move in the Game
-
-        // we are calling setCellState() and setPlayer() twice: the below code is not required and can be removed
-        // board.getCell(row, col).setCellState(CellState.FILLED);
-        //board.getCell(row, col).setPlayer(currentMovePlayer);
-
+        // Update player turn
         nextMovePlayerIndex = (nextMovePlayerIndex + 1) % players.size();
 
-
-        if(checkWin(lastMove)) {
+        // Check for win/draw
+        if (checkWin(lastMove)) {
             gameState = GameState.WIN;
-            winner = currentMovePlayer; // Winner Set
-        } else if(moves.size() == board.getSize() * board.getSize()) {
+            winner = currentMovePlayer;
+        } else if (moves.size() == board.getSize() * board.getSize()) {
             gameState = GameState.DRAW;
         }
+    }
 
+    private boolean validateCellState(int row, int col) {
+        // Ensure row and col are within board boundaries
+        if (row < 0 || row >= board.getSize() || col < 0 || col >= board.getSize()) {
+            System.out.println("Move is out of bounds!");
+            return false;
+        }
+
+        // Ensure the cell is empty before allowing the move
+        if (board.getCell(row, col).getCellState() != CellState.EMPTY) {
+            System.out.println("Cell is already occupied!");
+            return false;
+        }
+
+        return true;
     }
 
     private boolean checkWin(Move move) {
